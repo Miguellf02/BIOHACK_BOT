@@ -36,7 +36,7 @@ services:
       retries: 3
       start_period: 20s
 
-  # ──────────────────────────────────────────
+# ──────────────────────────────────────────
   # Servicio 2: Bot de Telegram
   # ──────────────────────────────────────────
   bot:
@@ -47,9 +47,10 @@ services:
     restart: unless-stopped
     depends_on:
       api:
-        condition: service_healthy   # Espera a que la API esté sana antes de iniciar el bot
+        condition: service_healthy
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      # El bot se comunica con la API a través de la red interna de Docker.
-      # El hostname "api" resuelve al contenedor biohacking_api.
       API_BASE_URL: http://api:8000
+    # Mapeamos la carpeta del contenedor al disco duro de Windows de forma persistente
+    volumes:
+      - ./user_data:/app/user_data

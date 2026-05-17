@@ -1,0 +1,156 @@
+{
+  "2026-05-01": {
+    "fecha": "2026-05-01",
+    "horas_sueno": 7.5,
+    "calidad_sueno": 8,
+    "proteinas_g": 160.0,
+    "carbohidratos_g": 300.0,
+    "grasas_g": 70.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 4500.0,
+    "rpe": 6
+  },
+  "2026-05-02": {
+    "fecha": "2026-05-02",
+    "horas_sueno": 7.2,
+    "calidad_sueno": 7,
+    "proteinas_g": 155.0,
+    "carbohidratos_g": 290.0,
+    "grasas_g": 68.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 4600.0,
+    "rpe": 6
+  },
+  "2026-05-03": {
+    "fecha": "2026-05-03",
+    "horas_sueno": 8.0,
+    "calidad_sueno": 9,
+    "proteinas_g": 180.0,
+    "carbohidratos_g": 350.0,
+    "grasas_g": 80.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 5000.0,
+    "rpe": 5
+  },
+  "2026-05-04": {
+    "fecha": "2026-05-04",
+    "horas_sueno": 7.0,
+    "calidad_sueno": 7,
+    "proteinas_g": 165.0,
+    "carbohidratos_g": 310.0,
+    "grasas_g": 75.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 4200.0,
+    "rpe": 6
+  },
+  "2026-05-05": {
+    "fecha": "2026-05-05",
+    "horas_sueno": 7.8,
+    "calidad_sueno": 8,
+    "proteinas_g": 160.0,
+    "carbohidratos_g": 300.0,
+    "grasas_g": 75.0,
+    "tipo_entrenamiento": "Descanso",
+    "volumen_total_kg": 0.0,
+    "rpe": 4
+  },
+  "2026-05-06": {
+    "fecha": "2026-05-06",
+    "horas_sueno": 8.5,
+    "calidad_sueno": 9,
+    "proteinas_g": 170.0,
+    "carbohidratos_g": 320.0,
+    "grasas_g": 70.0,
+    "tipo_entrenamiento": "Descanso",
+    "volumen_total_kg": 0.0,
+    "rpe": 4
+  },
+  "2026-05-07": {
+    "fecha": "2026-05-07",
+    "horas_sueno": 6.8,
+    "calidad_sueno": 6,
+    "proteinas_g": 150.0,
+    "carbohidratos_g": 270.0,
+    "grasas_g": 65.0,
+    "tipo_entrenamiento": "Boxeo",
+    "volumen_total_kg": 0.0,
+    "rpe": 7
+  },
+  "2026-05-08": {
+    "fecha": "2026-05-08",
+    "horas_sueno": 6.5,
+    "calidad_sueno": 5,
+    "proteinas_g": 145.0,
+    "carbohidratos_g": 260.0,
+    "grasas_g": 62.0,
+    "tipo_entrenamiento": "Boxeo",
+    "volumen_total_kg": 0.0,
+    "rpe": 8
+  },
+  "2026-05-09": {
+    "fecha": "2026-05-09",
+    "horas_sueno": 6.2,
+    "calidad_sueno": 5,
+    "proteinas_g": 140.0,
+    "carbohidratos_g": 250.0,
+    "grasas_g": 60.0,
+    "tipo_entrenamiento": "Boxeo",
+    "volumen_total_kg": 0.0,
+    "rpe": 8
+  },
+  "2026-05-10": {
+    "fecha": "2026-05-10",
+    "horas_sueno": 6.0,
+    "calidad_sueno": 4,
+    "proteinas_g": 150.0,
+    "carbohidratos_g": 280.0,
+    "grasas_g": 65.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 5200.0,
+    "rpe": 8
+  },
+  "2026-05-11": {
+    "fecha": "2026-05-11",
+    "horas_sueno": 5.8,
+    "calidad_sueno": 4,
+    "proteinas_g": 160.0,
+    "carbohidratos_g": 310.0,
+    "grasas_g": 72.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 5400.0,
+    "rpe": 9
+  },
+  "2026-05-12": {
+    "fecha": "2026-05-12",
+    "horas_sueno": 5.5,
+    "calidad_sueno": 3,
+    "proteinas_g": 150.0,
+    "carbohidratos_g": 260.0,
+    "grasas_g": 64.0,
+    "tipo_entrenamiento": "Fuerza",
+    "volumen_total_kg": 5500.0,
+    "rpe": 9
+  },
+  "2026-05-13": {
+    "fecha": "2026-05-13",
+    "horas_sueno": 7.5,
+    "calidad_sueno": 7,
+    "proteinas_g": 160.0,
+    "carbohidratos_g": 300.0,
+    "grasas_g": 70.0,
+    "tipo_entrenamiento": "Descanso",
+    "volumen_total_kg": 0.0,
+    "rpe": 6
+  },
+  "2026-05-14": {
+    "fecha": "2026-05-14",
+    "horas_sueno": 7.8,
+    "calidad_sueno": 8,
+    "proteinas_g": 165.0,
+    "carbohidratos_g": 300.0,
+    "grasas_g": 70.0,
+    "tipo_entrenamiento": "Descanso",
+    "volumen_total_kg": 0.0,
+    "rpe": 5
+  }
+}

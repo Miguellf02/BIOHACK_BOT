@@ -22,20 +22,14 @@ from agent import generate_biometric_report
 from analytics import BiohackingAnalyticsEngine
 from schemas import BiometricReportResponse, WeeklyPredictionInput
 
-# ---------------------------------------------------------------------------
 # Logging
-# ---------------------------------------------------------------------------
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
 # Aplicación FastAPI
-# ---------------------------------------------------------------------------
-
 app = FastAPI(
     title="Deep-Biohacking Tracker API",
     description=(
@@ -55,19 +49,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------------------------
 # Singleton del motor analítico
-# ---------------------------------------------------------------------------
-
-# Se instancia una vez en el módulo: no hay estado mutable entre requests,
-# por lo que es thread-safe para uso concurrente con uvicorn workers.
 analytics_engine = BiohackingAnalyticsEngine()
 
 
-# ---------------------------------------------------------------------------
 # Middleware — Latencia en cabecera X-Process-Time-Ms
-# ---------------------------------------------------------------------------
-
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     """
@@ -84,10 +70,7 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
-# ---------------------------------------------------------------------------
 # Endpoints
-# ---------------------------------------------------------------------------
-
 @app.get("/health", tags=["Infra"])
 async def health_check() -> dict:
     """Endpoint de salud para liveness probes de Docker/Kubernetes."""
@@ -156,10 +139,7 @@ async def predict_performance(
         ) from exc
 
 
-# ---------------------------------------------------------------------------
 # Entrypoint de desarrollo
-# ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
     # En producción, usar: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
     uvicorn.run(

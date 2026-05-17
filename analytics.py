@@ -26,11 +26,7 @@ from schemas import DailyLog, TrainingType
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Constantes de ingeniería de features
-# ---------------------------------------------------------------------------
 
-# Peso de carga escalado para sesiones de descanso: 0 kg efectivos.
 _VOLUME_DESCANSO: float = 0.0
 
 # Mapa de tipo de entrenamiento → factor multiplicador de intensidad relativa.
@@ -93,13 +89,9 @@ def _run_ridge_regression(logs: List[DailyLog]) -> Dict[str, Any]:
     X = _build_feature_matrix(logs)
     y = np.array([float(log.rpe) for log in logs], dtype=np.float64)
 
-    # Estandarización: los coeficientes se interpretan en unidades de σ,
-    # lo que permite comparar directamente el impacto de cada variable.
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # Ridge (α=1.0): regularización L2 que estabiliza coeficientes con N=14.
-    # Con tan pocas observaciones, Ridge evita sobreajuste mejor que OLS puro.
     model = Ridge(alpha=1.0, fit_intercept=True)
     model.fit(X_scaled, y)
 
@@ -114,8 +106,6 @@ def _run_ridge_regression(logs: List[DailyLog]) -> Dict[str, Any]:
         for name, coef in zip(feature_names, model.coef_)
     }
 
-    # Proyección T+7: usamos la media de los últimos 7 días como input "futuro"
-    # estandarizado, asumiendo que el atleta replica las condiciones recientes.
     X_last7_mean = X[-7:].mean(axis=0, keepdims=True)
     X_last7_scaled = scaler.transform(X_last7_mean)
     predicted_rpe: float = float(np.clip(model.predict(X_last7_scaled)[0], 1.0, 10.0))
@@ -131,10 +121,7 @@ def _run_ridge_regression(logs: List[DailyLog]) -> Dict[str, Any]:
     return result
 
 
-# ---------------------------------------------------------------------------
-# Motor asíncrono público
-# ---------------------------------------------------------------------------
-
+#Motor asincrono 
 class BiohackingAnalyticsEngine:
     """
     Interfaz asíncrona sobre el motor de ML local.
@@ -158,7 +145,5 @@ class BiohackingAnalyticsEngine:
         Returns:
             Diccionario con predicción de RPE y coeficientes de impacto.
         """
-        # asyncio.to_thread convierte la función síncrona bloqueante en una
-        # coroutine awaitable sin necesidad de instanciar un executor manualmente.
         insights = await asyncio.to_thread(_run_ridge_regression, logs)
         return insights

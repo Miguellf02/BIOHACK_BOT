@@ -21,17 +21,12 @@ from pydantic_ai.models.openai import OpenAIModel
 
 from schemas import BiometricReportResponse
 
-# ---------------------------------------------------------------------------
 # Configuración del modelo
-# ---------------------------------------------------------------------------
 
 _OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
 _model = OpenAIModel("gpt-4o-mini", api_key=_OPENAI_API_KEY)
 
-# ---------------------------------------------------------------------------
 # System Prompt — Ingeniería de Rol Avanzada
-# ---------------------------------------------------------------------------
-
 _SYSTEM_PROMPT = """\
 Eres el Dr. APEX, un Bioquímico de Rendimiento Humano de élite con doctorado \
 en fisiología del ejercicio y machine learning aplicado al deporte. \
@@ -56,20 +51,14 @@ REGLAS DE RESPUESTA ESTRICTAS:
    inverso. RPE=10 → 0 %, RPE=1 → 100 %. Usa interpolación lineal.
 """
 
-# ---------------------------------------------------------------------------
 # Instancia del Agente — Singleton de módulo
-# ---------------------------------------------------------------------------
-
 biohacking_agent: Agent[None, BiometricReportResponse] = Agent(
     model=_model,
     result_type=BiometricReportResponse,  # <--- Usando result_type nativo
     system_prompt=_SYSTEM_PROMPT,
 )
 
-# ---------------------------------------------------------------------------
 # Función de invocación pública
-# ---------------------------------------------------------------------------
-
 async def generate_biometric_report(
     analytics_output: Dict[str, Any],
 ) -> BiometricReportResponse:
