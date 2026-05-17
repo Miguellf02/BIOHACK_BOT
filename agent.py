@@ -25,12 +25,7 @@ from schemas import BiometricReportResponse
 # Configuración del modelo
 # ---------------------------------------------------------------------------
 
-# Las credenciales nunca se hardcodean. Si la variable no existe en el entorno,
-# la librería lanzará un error explícito en el primer request, no en import time.
 _OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
-
-# gpt-4o-mini: relación coste/calidad óptima para interpretación semántica
-# de coeficientes numéricos. Contexto de 128K tokens, más que suficiente.
 _model = OpenAIModel("gpt-4o-mini", api_key=_OPENAI_API_KEY)
 
 # ---------------------------------------------------------------------------
@@ -65,14 +60,11 @@ REGLAS DE RESPUESTA ESTRICTAS:
 # Instancia del Agente — Singleton de módulo
 # ---------------------------------------------------------------------------
 
-# El agente se instancia una sola vez al importar el módulo (singleton).
-# pydantic-ai maneja el ciclo de vida de la conexión HTTP internamente.
 biohacking_agent: Agent[None, BiometricReportResponse] = Agent(
     model=_model,
-    output_type=BiometricReportResponse,  # Fuerza Structured Output nativo
+    result_type=BiometricReportResponse,  # <--- Usando result_type nativo
     system_prompt=_SYSTEM_PROMPT,
 )
-
 
 # ---------------------------------------------------------------------------
 # Función de invocación pública
@@ -81,35 +73,9 @@ biohacking_agent: Agent[None, BiometricReportResponse] = Agent(
 async def generate_biometric_report(
     analytics_output: Dict[str, Any],
 ) -> BiometricReportResponse:
-    """
-    Invoca el agente LLM con los coeficientes analíticos como contexto.
-
-    El prompt de usuario contiene EXCLUSIVAMENTE datos agregados (≤ 6 números),
-    no series temporales. Esto cumple el principio de Token Throttling definido
-    en la arquitectura del sistema.
-
-    Args:
-        analytics_output: Dict retornado por BiohackingAnalyticsEngine.compute_insights().
-            Estructura esperada:
-            {
-                "predicted_rpe_next_week": float,
-                "current_mean_rpe": float,
-                "intercept": float,
-                "coefficients": {
-                    "horas_sueno": float,
-                    "calidad_sueno": float,
-                    "volumen_escalado_kg": float,
-                    "ratio_proteina_kcal": float,
-                }
-            }
-
-    Returns:
-        BiometricReportResponse validado por Pydantic v2.
-    """
+    """Invoca el agente LLM con los coeficientes analíticos como contexto."""
     coef = analytics_output["coefficients"]
 
-    # El prompt de usuario es ultra-compacto: ~80 tokens de entrada al LLM.
-    # Cada número va etiquetado para que el modelo no confunda variables.
     user_prompt = (
         f"COEFICIENTES RIDGE (estandarizados, impacto sobre RPE/fatiga):\n"
         f"  horas_sueno:          {coef['horas_sueno']:+.4f}\n"
@@ -124,7 +90,5 @@ async def generate_biometric_report(
         f"en los datos anteriores."
     )
 
-    # pydantic-ai ejecuta la llamada, valida la respuesta contra BiometricReportResponse
-    # y relanza ValidationError si el LLM devuelve un JSON malformado.
     result = await biohacking_agent.run(user_prompt)
-    return result.output
+    return result.data  # <--- Retornando el objeto de datos validado (.data)

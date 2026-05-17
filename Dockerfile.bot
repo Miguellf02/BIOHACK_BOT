@@ -1,30 +1,18 @@
 # =============================================================================
-# Dockerfile.bot — Imagen para el servicio del Bot de Telegram
-#
-# Imagen más ligera que la API: no requiere compilar scikit-learn ni numpy
-# porque el bot sólo hace peticiones HTTP y formatea texto.
-# Sin embargo, sí importa schemas.py (Pydantic), por lo que se incluye.
+# Dockerfile.bot — Imagen limpia para el servicio del Bot de Telegram
 # =============================================================================
-
 FROM python:3.12-slim AS bot-runtime
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Usuario no-root
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
-# Instalar sólo las dependencias del bot (subconjunto de requirements.txt)
 COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    httpx==0.27.2 \
-    python-telegram-bot==21.6 \
-    pydantic==2.9.2
 
-# Copiar módulos necesarios: el bot importa schemas.py para generar el payload
+# Instalamos el requirements unificado. Al no tener scikit-learn en la ejecución
+# del bot, no pesa nada y nos asegura sincronía absoluta de versiones de pydantic.
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY schemas.py bot_telegram.py ./
 
 USER appuser

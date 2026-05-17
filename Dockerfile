@@ -1,22 +1,10 @@
 # =============================================================================
-# Dockerfile — Multi-stage build para Deep-Biohacking Tracker
-#
-# Estrategia de optimización:
-#   Stage 1 (builder): Instala dependencias con todas las herramientas de
-#     compilación disponibles (gcc, build-essential para scikit-learn/numpy).
-#   Stage 2 (runtime): Imagen mínima python:3.12-slim sin compiladores.
-#     Sólo copia los paquetes ya compilados del stage anterior.
-#
-# Resultado: imagen final ~60% más ligera que un build single-stage.
+# Dockerfile — Optimizado sin pérdida de sub-dependencias en el runtime
 # =============================================================================
 
-# ─────────────────────────────────────────────
-# Stage 1: Builder — Compilación de dependencias
-# ─────────────────────────────────────────────
+# ── STAGE 1: BUILDER (Compilación aislada de Wheels pesados) ──────────────────
 FROM python:3.12-slim AS builder
 
-# Instalar herramientas de compilación necesarias para scikit-learn y numpy.
-# Se instalan SÓLO en este stage; no contaminarán la imagen final.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
@@ -24,47 +12,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
-# Copiar requirements primero para aprovechar la caché de capas de Docker.
-# Si el código cambia pero requirements.txt no, esta capa no se reconstruye.
 COPY requirements.txt .
 
-# Instalar paquetes en un directorio local para copiarlos al stage final.
-# --no-cache-dir: evita almacenar la caché de pip en la imagen.
-# --prefix=/install: instala en un path aislado que copiaremos al runtime.
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+# Compilamos ÚNICAMENTE scikit-learn y numpy en formato wheel en esta capa,
+# ya que son las únicas librerías complejas que necesitan compilador de C.
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels scikit-learn==1.5.2 numpy==1.26.4
 
 
-# ─────────────────────────────────────────────
-# Stage 2: Runtime — Imagen de producción mínima
-# ─────────────────────────────────────────────
+# ── STAGE 2: RUNNER (Imagen limpia final de producción) ───────────────────────
 FROM python:3.12-slim AS runtime
 
-# Usuario no-root para seguridad en producción.
-# Muchos escáneres de vulnerabilidades (Trivy, Snyk) marcan como HIGH
-# los contenedores que corren como root.
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
-# Copiar SÓLO los paquetes compilados del stage builder.
-# Los compiladores (gcc, g++) quedan excluidos automáticamente.
-COPY --from=builder /install /usr/local
+# Copiamos los binarios precompilados pesados de scikit-learn y numpy
+COPY --from=builder /build/wheels /wheels
+COPY requirements.txt .
 
-# Copiar código fuente de la aplicación.
+# Instalamos los wheels locales primero, y dejamos que pip descargue de forma
+# directa e íntegra el resto de dependencias (FastAPI, Pydantic, Pydantic-AI)
+# garantizando que resuelva sub-módulos como _griffe a nivel nativo de sistema.
+RUN pip install --no-cache-dir /wheels/* && \
+    pip install --no-cache-dir -r requirements.txt
+
 COPY schemas.py analytics.py agent.py main.py ./
 
-# Cambiar a usuario no-root antes de exponer el puerto.
 USER appuser
 
 EXPOSE 8000
 
-# Healthcheck nativo de Docker: llama al endpoint /health cada 30s.
-# Si falla 3 veces consecutivas, el contenedor se marca como unhealthy.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# Modo producción: 4 workers Uvicorn, sin hot-reload.
-# --workers 4: paralelismo para manejar múltiples requests concurrentes.
-# --loop uvloop: event loop más rápido que asyncio estándar (C extension).
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", \
-     "--workers", "4", "--loop", "uvloop", "--log-level", "info"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--loop", "uvloop", "--log-level", "info"]
