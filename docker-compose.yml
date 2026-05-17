@@ -1,0 +1,55 @@
+# =============================================================================
+# docker-compose.yml — Orquestación local de servicios
+#
+# Servicios:
+#   api       — FastAPI + Uvicorn (motor predictivo)
+#   bot       — Bot de Telegram (interfaz de usuario)
+#
+# Las variables de entorno se pasan desde el fichero .env local.
+# NUNCA commitear .env al repositorio (ver .gitignore).
+# =============================================================================
+
+services:
+
+  # ──────────────────────────────────────────
+  # Servicio 1: API FastAPI
+  # ──────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Apunta al stage "runtime" del multi-stage build.
+      target: runtime
+    container_name: biohacking_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Las variables se leen del fichero .env en el mismo directorio.
+      # docker-compose interpola automáticamente ${VAR} desde .env.
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ──────────────────────────────────────────
+  # Servicio 2: Bot de Telegram
+  # ──────────────────────────────────────────
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: biohacking_bot
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy   # Espera a que la API esté sana antes de iniciar el bot
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      # El bot se comunica con la API a través de la red interna de Docker.
+      # El hostname "api" resuelve al contenedor biohacking_api.
+      API_BASE_URL: http://api:8000
