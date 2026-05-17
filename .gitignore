@@ -1,11 +1,8 @@
-# =============================================================================
-# .gitignore — Deep-Biohacking Tracker
-# =============================================================================
 
 # ── Credenciales y configuración sensible ──────────────────────────────────
 .env
 .env.*
-!.env.example          # El ejemplo SÍ se commitea (sin valores reales)
+!.env.example         #si commit del ejemplo, no del real
 *.pem
 *.key
 secrets/
@@ -54,7 +51,6 @@ htmlcov/
 Thumbs.db
 
 # ── Docker ───────────────────────────────────────────────────────────────────
-# No ignorar Dockerfile ni docker-compose.yml (son parte del proyecto)
 docker-compose.override.yml
 
 # ── Logs ─────────────────────────────────────────────────────────────────────

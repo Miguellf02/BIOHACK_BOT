@@ -1,19 +1,7 @@
-# =============================================================================
-# docker-compose.yml — Orquestación local de servicios
-#
-# Servicios:
-#   api       — FastAPI + Uvicorn (motor predictivo)
-#   bot       — Bot de Telegram (interfaz de usuario)
-#
-# Las variables de entorno se pasan desde el fichero .env local.
-# NUNCA commitear .env al repositorio (ver .gitignore).
-# =============================================================================
 
 services:
 
-  # ──────────────────────────────────────────
   # Servicio 1: API FastAPI
-  # ──────────────────────────────────────────
   api:
     build:
       context: .
@@ -36,9 +24,8 @@ services:
       retries: 3
       start_period: 20s
 
-# ──────────────────────────────────────────
+
   # Servicio 2: Bot de Telegram
-  # ──────────────────────────────────────────
   bot:
     build:
       context: .
@@ -51,6 +38,5 @@ services:
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       API_BASE_URL: http://api:8000
-    # Mapeamos la carpeta del contenedor al disco duro de Windows de forma persistente
     volumes:
       - ./user_data:/app/user_data

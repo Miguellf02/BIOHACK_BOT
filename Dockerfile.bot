@@ -1,6 +1,4 @@
-# =============================================================================
 # Dockerfile.bot — Imagen limpia para el servicio del Bot de Telegram
-# =============================================================================
 FROM python:3.12-slim AS bot-runtime
 
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
@@ -9,8 +7,6 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-# Instalamos el requirements unificado. Al no tener scikit-learn en la ejecución
-# del bot, no pesa nada y nos asegura sincronía absoluta de versiones de pydantic.
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY schemas.py bot_telegram.py ./

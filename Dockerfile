@@ -1,6 +1,4 @@
-# =============================================================================
 # Dockerfile — Optimizado sin pérdida de sub-dependencias en el runtime
-# =============================================================================
 
 # ── STAGE 1: BUILDER (Compilación aislada de Wheels pesados) ──────────────────
 FROM python:3.12-slim AS builder
@@ -14,8 +12,6 @@ WORKDIR /build
 
 COPY requirements.txt .
 
-# Compilamos ÚNICAMENTE scikit-learn y numpy en formato wheel en esta capa,
-# ya que son las únicas librerías complejas que necesitan compilador de C.
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels scikit-learn==1.5.2 numpy==1.26.4
 
 
@@ -26,13 +22,10 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
-# Copiamos los binarios precompilados pesados de scikit-learn y numpy
+
 COPY --from=builder /build/wheels /wheels
 COPY requirements.txt .
 
-# Instalamos los wheels locales primero, y dejamos que pip descargue de forma
-# directa e íntegra el resto de dependencias (FastAPI, Pydantic, Pydantic-AI)
-# garantizando que resuelva sub-módulos como _griffe a nivel nativo de sistema.
 RUN pip install --no-cache-dir /wheels/* && \
     pip install --no-cache-dir -r requirements.txt
 

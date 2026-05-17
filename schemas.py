@@ -1,6 +1,4 @@
-# =============================================================================
 # schemas.py — Contratos de datos con Pydantic v2 (Flexibilizado para N >= 14 días)
-# =============================================================================
 from __future__ import annotations  # <-- Regla de oro: Siempre en la línea 1
 
 from datetime import date
